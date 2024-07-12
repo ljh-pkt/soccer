@@ -1,15 +1,19 @@
 <html>
 <head>
-  <meta charset="utf-8">
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-  <style>
-	  #list {line-height:2; font-size:20px;}
-	  [type='checkbox']{width:15; height:15}
-	  #btn {display:flex; margin:20px;}
-	  #btn > div {border:1px solid blue; height:30px; width:100px; background:blue; color:white; margin:0 10px; text-align:center;}
-	  #cnt {margin:30px; line-height:2;}
-  </style>
-  <script>
+    <meta charset="utf-8">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <style>
+		body {font-size:40px; line-height:2;}
+	    [type='checkbox']{width:25; height:25;}
+		#list > div {border-bottom:1px solid blue;}
+	    #btn {display:flex; margin:20px;}
+	    #btn > div {height:80px; width:200px; background:blue; color:white; margin:0 10px; text-align:center;}
+		#btn1 {background:red !important;}
+		#btn2 {background:#03a9f4 !important;}
+	    #cnt {margin:30px; line-height:2;}		
+		#txt {width:100%; height:300px; line-height:2;}
+    </style>
+    <script>
 	$(document).ready(function(){
 	    //날짜
 	    var today = new Date();
@@ -28,22 +32,14 @@
 	    //storage
 	    var key = year + "/" + month + "/" + day;
 	    
-	    //최초
-	    var list = ['김대열','김영광','진원일', '김혁수', '이종하', '이명훈'];	
-		list.sort();
-		list.push('신입1', '신입2', '게스트1', '게스트2');
-	    var html = "";
-	    var cnt = 1;
-	    for(var i=0; i<list.length; i++){
-	        html += "<input type='checkbox' name='att' id="+list[i]+" value='"+list[i]+"'>";
-		    html += "<label for="+list[i]+">"+list[i]+"</label>";
-	        html += "&emsp;"
-		    if(cnt%5 == 0){ 		  
-		      html += "<br>"; 
-		    }		
-		    cnt +=1;
-		}		  
-		$("#list").html(html);	
+	    //최초		
+		var y70 = ['서영도','김지호','황창수'];
+	    var y80 = ['김대열','김영광','이명훈','진원일','김혁수','이종하','조성익','신충현'];
+		var y90 = ['김준성','최태종'];		
+				
+		fn_show('y70');
+		fn_show('y80');
+		fn_show('y90');
 	  
 	    //체크
 	    $("[name=att]").change(function(){			
@@ -53,7 +49,7 @@
 	    //초기화
 	    $("#btn1").click(function(){
 		  $("#list [name='att']").prop("checked", false);
-		  $("#cnt").html("");		
+		  $("#txt").val("");		
 	    });
 	  
 	    //로드
@@ -65,36 +61,69 @@
 		  }
 		  fn_list();
 	    });
+		
+		//복사
+	    $("#btn3").click(function(){		  
+		  document.getElementById("txt").select();
+		  document.execCommand("copy");
+	    });
 	  
 		//명단
 		function fn_list(){
 			var chk = $("#list [name='att']:checked");
 			var cnt2 = "";
 			var chk_arr = [];
-			for(var i=0; i<chk.length; i++){
-				if(i != 0) cnt2 += ", ";
+			for(var i=0; i<chk.length; i++){				
+				if(i != 0 && (i.toString().substr(-1) == '5' || i.toString().substr(-1) == '0')){
+					cnt2 += "\n";
+				}else if(i != 0){
+					cnt2 += ", ";
+				}
 				cnt2 += chk.eq(i).val();
 				chk_arr.push(chk.eq(i).val());
 			}
 			
 			
-			var cnt1 = year + "년" + month + "월" + day + "일" + "(" + date + ") 출석부<br>";
-			var html = cnt1 + cnt2;
-			$("#cnt").html(html);
+			var cnt1 = year + "년" + month + "월" + day + "일" + "(" + date + ") 출석부 \n";			    
+			var cnt3 = "\n이상 "+chk.length+"명 ";
+			var html = cnt1 + cnt2 + cnt3;
+			
+			$("#txt").val(html);
 			
 			localStorage.setItem("current", chk_arr);
 			localStorage.setItem(key, chk_arr);		
+		}
+		
+		function fn_show(id){		
+			var html = "";
+			var temp = eval(id);
+			for(var i=0; i<temp.length; i++){			
+				html += "<input type='checkbox' name='att' id="+temp[i]+" value='"+temp[i]+"'>";
+				html += "<label for="+temp[i]+">"+temp[i]+"</label>";
+				html += "&emsp;"
+				if(i != 0 && (i.toString().substr(-1) == '4' || i.toString().substr(-1) == '9')){ 		  
+					html += "<br>"; 
+				}				    
+			}					                        
+			$("#"+id).html(html);
 		}
 	});
 	
   </script>
 </head>
-<body>
-  <div id="list"></div>
-  <div id="btn">
-    <div id="btn1">초기화</div>
-    <div id="btn2">로드</div>
-  </div>
-  <div id="cnt"></div>
+<body>		
+	<div id="list">
+		<div name="y70" id="y70"></div>
+		<div id="y80"></div>
+		<div id="y90"></div>
+	</div>
+	<div id="btn">
+		<div id="btn1">초기화</div>
+		<div id="btn2">로드</div>
+		<div id="btn3">복사</div>
+	</div>
+	<div id="cnt">
+		<textarea id='txt'></textarea>
+	</div>  
 </body>
 </html>

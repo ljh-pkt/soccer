@@ -3,8 +3,8 @@
     <meta charset="utf-8">
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <style>
-		body {font-size:40px; line-height:2;}
-	    [type='checkbox']{width:25; height:25;}
+		body {font-size:33px; line-height:3;}
+	    [type='checkbox']{width:25; height:25; display:none;}
 		#list > div {border-bottom:1px solid blue;}
 	    #btn {display:flex; margin:20px;}
 	    #btn > div {height:80px; width:200px; background:blue; color:white; margin:0 10px; text-align:center;}
@@ -45,8 +45,15 @@
 		fn_show('y90');
 	  
 	    //체크
-	    $("[name=att]").change(function(){			
-		  fn_list();
+	    $("[name=att]").change(function(){
+			var chk = $(this).prop("checked");			
+			var $label = $(this).next();
+			if(chk == true){
+				$label.css("background-color", "#c8c8ef");
+			}else{
+				$label.css("background-color", "");
+			}
+		    fn_list();
 	    });
 	  
 	    //초기화

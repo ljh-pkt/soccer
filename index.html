@@ -58,8 +58,10 @@
 	    });
 	  
 	    //초기화
-	    $("#btn1").click(function(){
+	    $("#btn1").click(function(){		
 		  $("#list [name='att']").prop("checked", false);
+		  $("label").css("background", "");
+		  
 		  $("#txt").val("");		
 	    });
 	  
@@ -69,6 +71,7 @@
 		  var arr = current.split(',');
 		  for(var i=0; i<arr.length; i++){			
 		  	$("#"+arr[i]).prop("checked", true);
+			$("#"+arr[i]).next().css("background-color", "#c8c8ef");
 		  }
 		  fn_list();
 	    });

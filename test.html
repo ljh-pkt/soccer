@@ -225,7 +225,7 @@
 				var temp_date = temp.substring(temp.indexOf("★★")+2, temp.indexOf("(")-1).replace("년", '-').replace("월", "-").trim();
 				var temp_dt = new Date('20'+temp_date);
 				
-				if(temp_date.indexOf("★★") == -1){
+				if(temp.indexOf("★★") == -1){
 					alert("잘못된 양식입니다.");
 					return;
 				}				

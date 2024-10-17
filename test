@@ -1,0 +1,328 @@
+<html>
+<head>
+<meta charset="utf-8">
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+<style>
+	body {font-size:28px; letter-spacing:-5px; line-height:3;}
+	#list [type='checkbox'] {display:none;}
+	label {border-radius:10px; padding:10px}
+	#list > div {border-bottom:1px solid blue;}
+	#btn {display:flex; margin:20px;}
+	#btn > div {height:80px; width:200px; background:blue; color:white; margin:0 10px; text-align:center;}
+	#btn1 {background:#1abd21 !important;}
+	#btn2 {background:#03a9f4 !important;}
+	#btn4 {background:#f4b703 !important;}
+	#btn6 {background:red !important;}
+	#btn7 {background:#1abd21 !important;}
+	#cnt {margin:30px; line-height:2;}		
+	#txt {width:100%; height:300px; line-height:2;}
+	#stats {display:hidden; letter-spacing:normal; width:max-content;}
+	#stats tr td {border:1px solid blue; text-align:center; font-size:50px; padding:20px}
+	#stats tr td input[type="checkbox"] {width:50px; height:50px;}
+</style>
+
+<script>
+	$(document).ready(function(){
+	    //날짜
+	    var today = new Date();
+	    var year = today.getFullYear().toString().substr(2,2);
+	    var month = today.getMonth() + 1;
+	    var day = today.getDate();
+	    var date = today.getDay();
+	    if(date == 0){ date = "일" 
+	    }else if(date == 1){ date = "월"
+	    }else if(date == 2){ date = "화"
+	    }else if(date == 3){ date = "수"
+	    }else if(date == 4){ date = "목"
+	    }else if(date == 5){ date = "금"
+	    }else if(date == 6){ date = "토" }
+	    
+	    //storage
+	    var key = year + "/" + month + "/" + day;
+	    
+	    //최초	
+        var y60 = ['홍성기', '김진수', '김덕규', '노기완', '문상연',  '김학수', '이해인', '오성진', '최용규', '김영식', '강인구', '이용웅', '최형재', '이정훈', '서춘원', '김창진', '최우근'
+		       , '김재광', '김현근', '정종명', '최수동', '백승주', '안용석', '서영도', '김성훈']		
+	    var y70 = ['권광석', '최현덕', '이민영', '황창수', '김지호', '권종민', '한상업', '김대열', '김경훈', '김철수'];
+	    var y80 = ['안진국', '이현우', '김영광', '이용우', '진원일', '김혁수', '이명훈', '이종하', '김해룡', '이태건', '박성우', '정재혁', '윤두희'];
+	    var y90 = ['최태종', '조성익', '신충현', '이동건', '김응균', '김정호', '김준성', '남건안'];
+	    var etc1 = ['신입1', '신입2', '신입3', '신입4', '신입5'];
+	    var etc2 = ['외부인1', '외부인2', '외부인3', '외부인4', '외부인5'];
+				
+		fn_show('y60');		
+		fn_show('y70');
+		fn_show('y80');
+		fn_show('y90');
+		fn_show('etc1');
+		fn_show('etc2');
+	  
+	    //체크
+	    $("[name=att]").change(function(){
+			var chk = $(this).prop("checked");			
+			var $label = $(this).next();
+			if(chk == true){
+				$label.css("background-color", "#c8c8ef");
+			}else{
+				$label.css("background-color", "");
+			}
+		    fn_list();
+	    });
+	  
+	    //초기화
+	    $("#btn1").click(function(){		
+		  $("#list [name='att']").prop("checked", false);
+		  $("label").css("background", "");
+		  
+		  $("#txt").val("");		
+	    });
+	  		
+		//복사
+	    $("#btn4").click(function(){		  
+		  document.getElementById("txt").select();
+		  document.execCommand("copy");
+	    });
+	  
+		//명단
+		function fn_list(){
+			var chk = $("#list [name='att']:checked");
+			var cnt2 = "";
+			var chk_arr = [];
+			for(var i=0; i<chk.length; i++){				
+				if(i != 0 && (i.toString().substr(-1) == '5' || i.toString().substr(-1) == '0')){
+					cnt2 += "\n";
+				}else if(i != 0){
+					cnt2 += " ";
+				}
+				cnt2 += chk.eq(i).val();
+				chk_arr.push(chk.eq(i).val());
+			}
+			
+			
+			var cnt1 = "★★ " + year + "년" + month + "월" + day + "일" + "(" + date + ") 출석부 ★★ \n";			    
+			var cnt3 = "\n이상 "+chk.length+"명 ";
+			var html = cnt1 + cnt2 + cnt3;
+			
+			$("#txt").val(html);
+			
+			localStorage.setItem("current", chk_arr);
+			localStorage.setItem(key, chk_arr);		
+		}
+		
+		function fn_show(id){		
+			var html = "";
+			var temp = eval(id);
+			for(var i=0; i<temp.length; i++){			
+				html += "<input type='checkbox' name='att' id="+temp[i]+" value='"+temp[i]+"'>";
+				html += "<label for="+temp[i]+">"+temp[i]+"</label>";
+				html += "&emsp;"
+				if(i != 0 && (i.toString().substr(-1) == '4' || i.toString().substr(-1) == '9')){ 		  
+					html += "<br>"; 
+				}				    
+			}					                        
+			$("#"+id).html(html);
+		}
+
+		/* 통계 조회 */ 
+	    $("#btn2").click(function(){			
+			/* 명단 정보 */
+			var user = new Array();
+			for(var i=0; i<y60.length; i++) {
+				user.push(y60[i]);
+			}
+			for(var i=0; i<y70.length; i++) {
+				user.push(y70[i]);
+			}
+			for(var i=0; i<y80.length; i++) {
+				user.push(y80[i]);
+			}
+			for(var i=0; i<y90.length; i++) {
+				user.push(y90[i]);
+			}						
+		
+			/* 정보 조회 */
+			var loc_str = localStorage.getItem("str");
+			
+			if(loc_str != null) {
+				var str_arr = loc_str.split(',');
+				
+				/* 변수 선언 */
+				var innerHtml = '';
+				var listHtml = '';
+				var map = new Map();
+
+				/* 리스트 */
+				innerHtml += "<table><tr><td style=width:100px'></td><td style=width:250px'></td>";
+				
+				for(var i=0; i<user.length; i++) {
+					innerHtml += "<td>";
+					innerHtml += user[i];
+					innerHtml += "</td>";
+				}
+					
+				for(var i=0; i<str_arr.length; i++) {
+					listHtml += "<tr>";
+					var str = str_arr[i];	
+					
+					/* 리스트에서 날짜 추출 */	
+					var date = str.substring(str.indexOf("★★")+2, str.indexOf("(")-1);
+					var dt = date.replace('년', '-').replace('월', '-').replace('일','');
+
+					/* 리스트에서 명단 추출 */
+					var user_first_idx = str.lastIndexOf("★★");
+					var user_end_idx = str.lastIndexOf("이상 ");
+					var user_list = str.substring(user_first_idx+3, user_end_idx);
+					
+					listHtml += "<td><input type='checkbox' name='del' value='"+date+"'></td>";
+					/* 날짜 표시 */
+					listHtml += "<td>"+dt+"</td>";
+					
+					/* 출석 표시 */
+					for(var j=0; j<user.length; j++) {
+						if(user_list.indexOf(user[j]) > -1) {
+							listHtml += "<td>O</td>";
+							var cnt = map.get(user[j]);
+							if(cnt == undefined) cnt = 0;
+							map.set(user[j], cnt+1);
+						} else {
+							listHtml += "<td></td>";
+						}
+					}
+					listHtml += "</tr>";
+				}
+				
+				/* 통계 표시 */
+				innerHtml += "<tr style='background:#e5e5f5'><td></td><td>합계</td>";
+				for(var j=0; j<user.length; j++) {
+					var cnt = map.get(user[j]);
+					if(cnt == undefined) cnt = 0;
+					innerHtml += "<td>"+cnt+"</td>";
+				}
+				
+				innerHtml += listHtml;
+				innerHtml += "</table>";
+				
+				innerHtml += "<div id='btn'><div id='btn5'>메인</div><div id='btn6'>삭제</div><div id='btn7'>초기화</div></div>";
+				
+				$("#stats").html(innerHtml);
+				
+				/* main 숨김 */ 		
+				$("#main").hide();
+				$("#stats").show();
+			} else {
+				alert("등록된 정보가 없습니다.");
+			}
+		});
+
+		/* 저장 */
+	    $("#btn3").click(function(){
+			if(confirm("형 저장할거에요??")){
+				/* 정보 조회 */
+				var loc_str = localStorage.getItem("str");
+				var str_arr = new Array();
+				
+				var temp = $("#txt").val();					
+				var temp_date = temp.substring(temp.indexOf("★★")+2, temp.indexOf("(")-1).replace("년", '-').replace("월", "-").trim();
+				var temp_dt = new Date('20'+temp_date);
+				
+				console.log('temp_dt', temp_dt);
+				if(temp_dt == 'invalid Date'){
+					alert("잘못된 양식입니다.");
+					return;
+				}
+					
+				if(loc_str != null){					
+					str_arr = loc_str.split(',');
+					
+					for(var i=0; i<str_arr.length; i++) {						
+					  var date = str_arr[i].substring(str_arr[i].indexOf("★★")+2, str_arr[i].indexOf("(")-1).replace("년", '-').replace("월", "-").trim();
+					  var dt = new Date('20'+date); 
+
+					  if(date.indexOf(temp_date) > -1) { //중복값 변경	
+						str_arr.splice(i, 1, temp);	
+						break;
+					  }else if(dt < temp_dt) { //새로운값 넣기 (중간)							
+						if(i+1 <str_arr.length) {							
+							var next_date = str_arr[i+1].substring(str_arr[i+1].indexOf("★★")+2, str_arr[i+1].indexOf("(")-1).replace("년", '-').replace("월", "-").trim();
+							var next_dt = new Date('20'+next_date);
+														
+							if(temp_dt < next_dt || i+1 == str_arr.length){											
+								str_arr.splice(i+1, 0, temp);	
+								break;
+							}
+						}else{
+							str_arr.push(temp);
+						}
+					  }
+					}
+				} else {
+					str_arr.push(temp);
+				}				
+				localStorage.setItem("str", str_arr);
+			}
+		});
+		
+		/* 메인 */
+	    $(document).on('click', '#btn5', function() {
+			$("#stats").hide();
+			$("#main").show();
+		});
+
+		/* 삭제 */
+		$(document).on('click', '#btn6', function() {
+			if(confirm('형 정말 삭제 할거에요??')){
+				/* 정보 조회 */
+				var loc_str = localStorage.getItem("str");
+				var str_arr = loc_str.split(',');
+				
+				var del = $("[name=del]:checked");
+				for(var i=0; i<del.length; i++) {
+					var val = del.eq(i).val();
+					for(var j=0; j<str_arr.length; j++) {
+						if(str_arr[j].indexOf(val) > -1) {					  
+						  str_arr.splice(j, 1);
+						}
+					}
+				}
+				
+				localStorage.setItem("str", str_arr);
+				
+				$("#btn2").trigger('click');
+			}
+		});
+		
+		/* 조회 초기화 */
+		$(document).on('click', '#btn7', function() {
+			if(confirm('저장 정보가 다 삭제됩니다. 진행하시겠습니까?')) {
+				localStorage.clear();
+				$("#stats").hide();
+				$("#main").show();
+			}
+		});
+	});
+	
+  </script>
+</head>
+<body>
+	<div id="main">
+		<div id="list">
+			<div id="y60"></div>
+			<div id="y70"></div>
+			<div id="y80"></div>
+			<div id="y90"></div>
+			<div id="etc1"></div>
+			<div id="etc2"></div>
+		</div>
+		<div id="btn">
+			<div id="btn1">초기화</div>
+			<div id="btn2">조회</div>
+			<div id="btn3">저장</div>
+			<div id="btn4">복사</div>
+		</div>
+		<div id="cnt">
+			<textarea id='txt'></textarea>
+		</div>  
+	</div>
+	<div id="stats"></div>
+</body>
+</html>

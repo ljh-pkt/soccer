@@ -215,7 +215,7 @@
 		});
 
 		/* 저장 */
-	    $("#btn3").click(function(){
+	    $("#btn3").click(function(){			
 			if(confirm("형 저장할거에요??")){
 				/* 정보 조회 */
 				var loc_str = localStorage.getItem("str");
@@ -225,23 +225,26 @@
 				var temp_date = temp.substring(temp.indexOf("★★")+2, temp.indexOf("(")-1).replace("년", '-').replace("월", "-").trim();
 				var temp_dt = new Date('20'+temp_date);
 				
-				console.log('temp_dt', temp_dt);
-				if(temp_dt == 'invalid Date'){
+				if(temp_date.indexOf("★★") == -1){
 					alert("잘못된 양식입니다.");
 					return;
-				}
+				}				
+
 					
 				if(loc_str != null){					
 					str_arr = loc_str.split(',');
 					
 					for(var i=0; i<str_arr.length; i++) {						
 					  var date = str_arr[i].substring(str_arr[i].indexOf("★★")+2, str_arr[i].indexOf("(")-1).replace("년", '-').replace("월", "-").trim();
-					  var dt = new Date('20'+date); 
+					  var dt = new Date('20'+date); 					  
 
 					  if(date.indexOf(temp_date) > -1) { //중복값 변경	
 						str_arr.splice(i, 1, temp);	
 						break;
-					  }else if(dt < temp_dt) { //새로운값 넣기 (중간)							
+					  } else if(dt > temp_dt) { //새로운값 넣기 (맨 앞)							
+						str_arr.splice(i, 0, temp);
+						break;
+					  } else if(dt < temp_dt) { //새로운값 넣기 (중간)							
 						if(i+1 <str_arr.length) {							
 							var next_date = str_arr[i+1].substring(str_arr[i+1].indexOf("★★")+2, str_arr[i+1].indexOf("(")-1).replace("년", '-').replace("월", "-").trim();
 							var next_dt = new Date('20'+next_date);

@@ -77,7 +77,7 @@
 			$("#area_sum > div").remove();
 			
 			if(date == "" || date == undefined) {			
-				date = fn_day();
+				date = fn_day().substring(0,8);
 				$("[name=datetime]").val(date);
 			} else {
 				var entries = obj[date];
@@ -125,7 +125,8 @@
 			var url = URL.createObjectURL(blob);
 			var a = document.createElement('a');
 			a.href = url;
-			a.download = "text.json";
+			var now = fn_day().substring(0,4) + "-" + fn_day().substring(4,6) + "-" + fn_day().substring(6,8) + "-" + fn_day().substring(8,10);
+			a.download = ""+now+".json";
 			a.click();
 			
 			URL.revokeObjectURL(url);
@@ -184,7 +185,8 @@
 			var url = URL.createObjectURL(blob);
 			var a = document.createElement('a');
 			a.href = url;
-			a.download = "text.json";
+			var now = fn_day().substring(0,4) + "-" + fn_day().substring(4,6) + "-" + fn_day().substring(6,8) + "_" + fn_day().substring(8,10) + "_" + fn_day().substring(10,12);
+			a.download = ""+now+".json";
 			a.click();
 			
 			URL.revokeObjectURL(url);
@@ -195,7 +197,9 @@
 			var year = today.getFullYear();
 			var month = ('0'+(today.getMonth() + 1)).slice(-2);
 			var day = ('0'+today.getDate()).slice(-2);
-			var dateStr = year + month + day;
+			var hour = today.getHours();
+			var minutes = today.getMinutes();
+			var dateStr = year + month + day + hour + minutes;
 			return dateStr
 		}				
 	</script>

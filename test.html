@@ -1,331 +1,252 @@
-<html>
-<head>
-<meta charset="utf-8">
-<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-
-<style>
-	body {font-size:28px; letter-spacing:-5px; line-height:3;}
-	#list [type='checkbox'] {display:none;}
-	label {border-radius:10px; padding:10px}
-	#list > div {border-bottom:1px solid blue;}
-	#btn {display:flex; margin:20px;}
-	#btn > div {height:80px; width:200px; background:blue; color:white; margin:0 10px; text-align:center;}
-	#btn1 {background:#1abd21 !important;}
-	#btn2 {background:#03a9f4 !important;}
-	#btn4 {background:#f4b703 !important;}
-	#btn6 {background:red !important;}
-	#btn7 {background:#1abd21 !important;}
-	#cnt {margin:30px; line-height:2;}		
-	#txt {width:100%; height:300px; line-height:2;}
-	#stats {display:hidden; letter-spacing:normal; width:max-content;}
-	#stats tr td {border:1px solid blue; text-align:center; font-size:50px; padding:20px}
-	#stats tr td input[type="checkbox"] {width:50px; height:50px;}
-</style>
-
-<script>
-	$(document).ready(function(){
-	    //날짜
-	    var today = new Date();
-	    var year = today.getFullYear().toString().substr(2,2);
-	    var month = today.getMonth() + 1;
-	    var day = today.getDate();
-	    var date = today.getDay();
-	    if(date == 0){ date = "일" 
-	    }else if(date == 1){ date = "월"
-	    }else if(date == 2){ date = "화"
-	    }else if(date == 3){ date = "수"
-	    }else if(date == 4){ date = "목"
-	    }else if(date == 5){ date = "금"
-	    }else if(date == 6){ date = "토" }
-	    
-	    //storage
-	    var key = year + "/" + month + "/" + day;
-	    
-	    //최초	
-        var y60 = ['홍성기', '김진수', '김덕규', '노기완', '문상연',  '김학수', '이해인', '오성진', '최용규', '김영식', '강인구', '이용웅', '최형재', '이정훈', '서춘원', '김창진', '최우근'
-		       , '김재광', '김현근', '정종명', '최수동', '백승주', '안용석', '서영도', '김성훈']		
-	    var y70 = ['권광석', '최현덕', '이민영', '황창수', '김지호', '권종민', '한상업', '김대열', '김경훈', '김철수'];
-	    var y80 = ['안진국', '이현우', '김영광', '이용우', '진원일', '김혁수', '이명훈', '이종하', '김해룡', '이태건', '박성우', '정재혁', '윤두희'];
-	    var y90 = ['최태종', '조성익', '신충현', '이동건', '김응균', '김정호', '김준성', '남건안'];
-	    var etc1 = ['신입1', '신입2', '신입3', '신입4', '신입5'];
-	    var etc2 = ['외부인1', '외부인2', '외부인3', '외부인4', '외부인5'];
+<!DOCTYPE html>
+<html lang="en">
+<head>	
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">	
+    <title>test</title>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<style>
+		body > div {margin: 20px;}
+		
+		#list > div {display: flex;}
+		#list > div > div {margin: 5px; cursor: pointer;}
+		
+		#detail {display: none;}
+		#detail > div {margin: 20px;}
+		
+		h4 {margin-bottom: 5px;}
+	</style>
+	<script>
+		/*
+		  데이터 형식 : 날짜, {[항목:값, 이름:값, 금액:값],[항목:값, 이름:값, 금액:값]}
+		*/
+		var obj; // json 파일 내용
+		
+		$(document).ready(function() {									
+			document.getElementById("fileInput").addEventListener("change", function(event) { // 파일 읽기
+				let file = event.target.files[0]; // 사용자가 선택한 파일 가져오기
 				
-		fn_show('y60');		
-		fn_show('y70');
-		fn_show('y80');
-		fn_show('y90');
-		fn_show('etc1');
-		fn_show('etc2');
-	  
-	    //체크
-	    $("[name=att]").change(function(){
-			var chk = $(this).prop("checked");			
-			var $label = $(this).next();
-			if(chk == true){
-				$label.css("background-color", "#c8c8ef");
-			}else{
-				$label.css("background-color", "");
-			}
-		    fn_list();
-	    });
-	  
-	    //초기화
-	    $("#btn1").click(function(){		
-		  $("#list [name='att']").prop("checked", false);
-		  $("label").css("background", "");
-		  
-		  $("#txt").val("");		
-	    });
-	  		
-		//복사
-	    $("#btn4").click(function(){		  
-		  document.getElementById("txt").select();
-		  document.execCommand("copy");
-	    });
-	  
-		//명단
-		function fn_list(){
-			var chk = $("#list [name='att']:checked");
-			var cnt2 = "";
-			var chk_arr = [];
-			for(var i=0; i<chk.length; i++){				
-				if(i != 0 && (i.toString().substr(-1) == '5' || i.toString().substr(-1) == '0')){
-					cnt2 += "\n";
-				}else if(i != 0){
-					cnt2 += " ";
-				}
-				cnt2 += chk.eq(i).val();
-				chk_arr.push(chk.eq(i).val());
-			}
+				if (file) {
+					let reader = new FileReader(); // FileReader 객체 생성
+					
+					reader.onload = function(e) {
+						
+						/* list */
+						$("#list > div").after().not(':first').remove(); // 목록 초기화
+						var html = "";
+						var result = e.target.result; // 파일 내용 출력
+						obj = JSON.parse(result);
+						var keys = Object.keys(obj);
+						$.each(keys, function(index, value) {
+							var date = value;
+							html += "<div><div onclick='fn_detail("+date+");'>"+date+"</div><button onclick='fn_delList("+date+");'>삭제</button></div>";
+						})
+						$("#list").append(html);
+					};					
+					
+					reader.readAsText(file, "UTF-8"); // 파일을 UTF-8로 읽기
+				}				
+			})	
+
+			$(document).on('click', '.del', function() { // 삭제
+				var id = $(this).attr('id');				
+			})
 			
+			$(document).on('keyup', '[name=cost]', function() { // input박스에 값 입력시				
+				fn_sum();
+			});
 			
-			var cnt1 = "★★ " + year + "년" + month + "월" + day + "일" + "(" + date + ") 출석부 ★★ \n";			    
-			var cnt3 = "\n이상 "+chk.length+"명 ";
-			var html = cnt1 + cnt2 + cnt3;
-			
-			$("#txt").val(html);
-			
-			localStorage.setItem("current", chk_arr);
-			localStorage.setItem(key, chk_arr);		
+			$(document).on('change', '[name=item]', function() { // select 값 변경시			
+				fn_sum();
+			});
+		})
+		
+		function fn_list() { // 목록
+			$("#detail").hide();
+			$("#file").show();
+			$("#list").show();			
 		}
 		
-		function fn_show(id){		
-			var html = "";
-			var temp = eval(id);
-			for(var i=0; i<temp.length; i++){			
-				html += "<input type='checkbox' name='att' id="+temp[i]+" value='"+temp[i]+"'>";
-				html += "<label for="+temp[i]+">"+temp[i]+"</label>";
-				html += "&emsp;"
-				if(i != 0 && (i.toString().substr(-1) == '4' || i.toString().substr(-1) == '9')){ 		  
-					html += "<br>"; 
-				}				    
-			}					                        
-			$("#"+id).html(html);
-		}
-
-		/* 통계 조회 */ 
-	    $("#btn2").click(function(){			
-			/* 명단 정보 */
-			var user = new Array();
-			for(var i=0; i<y60.length; i++) {
-				user.push(y60[i]);
-			}
-			for(var i=0; i<y70.length; i++) {
-				user.push(y70[i]);
-			}
-			for(var i=0; i<y80.length; i++) {
-				user.push(y80[i]);
-			}
-			for(var i=0; i<y90.length; i++) {
-				user.push(y90[i]);
-			}						
-		
-			/* 정보 조회 */
-			var loc_str = localStorage.getItem("str");
+		function fn_detail(date){ // 상세			
+			$("#file").hide();
+			$("#list").hide();
+			$("#detail").show();
 			
-			if(loc_str != null) {
-				var str_arr = loc_str.split(',');
-				
-				/* 변수 선언 */
-				var innerHtml = '';
-				var listHtml = '';
-				var map = new Map();
-
-				/* 리스트 */
-				innerHtml += "<table><tr><td style=width:100px'></td><td style=width:250px'></td>";
-				
-				for(var i=0; i<user.length; i++) {
-					innerHtml += "<td>";
-					innerHtml += user[i];
-					innerHtml += "</td>";
-				}
-					
-				for(var i=0; i<str_arr.length; i++) {
-					listHtml += "<tr>";
-					var str = str_arr[i];	
-					
-					/* 리스트에서 날짜 추출 */	
-					var date = str.substring(str.indexOf("★★")+2, str.indexOf("(")-1);
-					var dt = date.replace('년', '-').replace('월', '-').replace('일','');
-
-					/* 리스트에서 명단 추출 */
-					var user_first_idx = str.lastIndexOf("★★");
-					var user_end_idx = str.lastIndexOf("이상 ");
-					var user_list = str.substring(user_first_idx+3, user_end_idx);
-					
-					listHtml += "<td><input type='checkbox' name='del' value='"+date+"'></td>";
-					/* 날짜 표시 */
-					listHtml += "<td>"+dt+"</td>";
-					
-					/* 출석 표시 */
-					for(var j=0; j<user.length; j++) {
-						if(user_list.indexOf(user[j]) > -1) {
-							listHtml += "<td>O</td>";
-							var cnt = map.get(user[j]);
-							if(cnt == undefined) cnt = 0;
-							map.set(user[j], cnt+1);
-						} else {
-							listHtml += "<td></td>";
-						}
-					}
-					listHtml += "</tr>";
-				}
-				
-				/* 통계 표시 */
-				innerHtml += "<tr style='background:#e5e5f5'><td></td><td>합계</td>";
-				for(var j=0; j<user.length; j++) {
-					var cnt = map.get(user[j]);
-					if(cnt == undefined) cnt = 0;
-					innerHtml += "<td>"+cnt+"</td>";
-				}
-				
-				innerHtml += listHtml;
-				innerHtml += "</table>";
-				
-				innerHtml += "<div id='btn'><div id='btn5'>메인</div><div id='btn6'>삭제</div><div id='btn7'>초기화</div></div>";
-				
-				$("#stats").html(innerHtml);
-				
-				/* main 숨김 */ 		
-				$("#main").hide();
-				$("#stats").show();
+			//상세 초기화
+			$("#area_cost > div").remove();
+			$("#area_sum > div").remove();
+			
+			if(date == "" || date == undefined) {			
+				date = fn_day();
+				$("[name=datetime]").val(date);
 			} else {
-				alert("등록된 정보가 없습니다.");
-			}
-		});
-
-		/* 저장 */
-	    $("#btn3").click(function(){			
-			if(confirm("형 저장할거에요??")){
-				/* 정보 조회 */
-				var loc_str = localStorage.getItem("str");
-				var str_arr = new Array();
-				
-				var temp = $("#txt").val();					
-				var temp_date = temp.substring(temp.indexOf("★★")+2, temp.indexOf("(")-1).replace("년", '-').replace("월", "-").trim();
-				var temp_dt = new Date('20'+temp_date);
-				
-				if(temp.indexOf("★★") == -1){
-					alert("잘못된 양식입니다.");
-					return;
-				}				
-
+				var entries = obj[date];
+				$("[name=datetime]").val(date);
+				for(var i=0; i<entries.length; i++) {
+					var entry = entries[i];
+					var item = entry[0];							
+					var name = entry[1];
+					var cost = entry[2];							
 					
-				if(loc_str != null){					
-					str_arr = loc_str.split(',');
+					fn_add();
 					
-					for(var i=0; i<str_arr.length; i++) {						
-					  var date = str_arr[i].substring(str_arr[i].indexOf("★★")+2, str_arr[i].indexOf("(")-1).replace("년", '-').replace("월", "-").trim();
-					  var dt = new Date('20'+date); 					  
-
-					  if(date.indexOf(temp_date) > -1) { //중복값 변경	
-						str_arr.splice(i, 1, temp);	
-						break;
-					  } else if(dt > temp_dt) { //새로운값 넣기 (맨 앞)							
-						str_arr.splice(i, 0, temp);
-						break;
-					  } else if(dt < temp_dt) { //새로운값 넣기 (중간)							
-						if(i+1 <str_arr.length) {							
-							var next_date = str_arr[i+1].substring(str_arr[i+1].indexOf("★★")+2, str_arr[i+1].indexOf("(")-1).replace("년", '-').replace("월", "-").trim();
-							var next_dt = new Date('20'+next_date);
-														
-							if(temp_dt < next_dt || i+1 == str_arr.length){											
-								str_arr.splice(i+1, 0, temp);	
-								break;
-							}
-						}else{
-							str_arr.push(temp);
-						}
-					  }
-					}
-				} else {
-					str_arr.push(temp);
-				}				
-				localStorage.setItem("str", str_arr);
-			}
-		});
-		
-		/* 메인 */
-	    $(document).on('click', '#btn5', function() {
-			$("#stats").hide();
-			$("#main").show();
-		});
-
-		/* 삭제 */
-		$(document).on('click', '#btn6', function() {
-			if(confirm('형 정말 삭제 할거에요??')){
-				/* 정보 조회 */
-				var loc_str = localStorage.getItem("str");
-				var str_arr = loc_str.split(',');
-				
-				var del = $("[name=del]:checked");
-				for(var i=0; i<del.length; i++) {
-					var val = del.eq(i).val();
-					for(var j=0; j<str_arr.length; j++) {
-						if(str_arr[j].indexOf(val) > -1) {					  
-						  str_arr.splice(j, 1);
-						}
-					}
+					$("[name=item]").eq(i).val(item);
+					$("[name=name]").eq(i).val(name);
+					$("[name=cost]").eq(i).val(cost);														
 				}
-				
-				localStorage.setItem("str", str_arr);
-				
-				$("#btn2").trigger('click');
+				fn_sum();
 			}
-		});
+		}
 		
-		/* 조회 초기화 */
-		$(document).on('click', '#btn7', function() {
-			if(confirm('저장 정보가 다 삭제됩니다. 진행하시겠습니까?')) {
-				localStorage.clear();
-				$("#stats").hide();
-				$("#main").show();
+		function fn_add() { // 추가
+			var arr = ['aa', 'bb', 'cc'];
+			var html = "";
+			html += "<div>";
+			html += "<select name='item'>";
+			arr.forEach(function(value) {
+				html += "<option value='"+value+"'>"+value+"</option>";
+			})			
+			html += "</select>";
+			html += "<input type='text' name='name'><input type='text' name='cost'>";
+			html += "<button onclick='fn_delDetail(this)'>삭제</button></div>";			
+			$("#area_cost").append(html);
+		}
+		
+		function fn_delList(date) { // 리스트 삭제
+			if(!confirm("삭제 하시겠습니까?")) {
+				return;
 			}
-		});
-	});
-	
-  </script>
+			
+			delete obj[date];
+		
+			var jsonStr = JSON.stringify(obj, null, 2);									
+			
+			var blob = new Blob([jsonStr], { type: 'application/json' });
+			var url = URL.createObjectURL(blob);
+			var a = document.createElement('a');
+			a.href = url;
+			a.download = "text.json";
+			a.click();
+			
+			URL.revokeObjectURL(url);
+		}
+		
+		function fn_delDetail(btn) { // 상세 삭제
+			btn.parentElement.remove();
+			fn_sum();
+		}
+		
+		function fn_sum() { // 합계			
+			var sum = {}; // item, cost
+			
+			$("[name=item]").each(function(idx) { // 합계
+				var item = $(this).val();
+				var name = $("[name=name]").eq(idx).val();
+				var cost = $("[name=cost]").eq(idx).val();
+				
+				if([item] in sum) { // 값을 가지고 있으면					
+					sum[item] += parseInt(cost);
+				} else { // 값이 없으면					
+					sum[item] = parseInt(cost);
+				}								
+			})
+			
+			var html = "";
+			var keys = Object.keys(sum);
+			for(var i=0; i<keys.length; i++) {
+				var key = keys[i];								
+				html += "<div>"+key+" : <input type='text' name='sum_"+key+"' value='"+sum[key]+"'></div>";				
+			}			
+			$("#area_sum").html(html);
+		}
+				
+		function fn_save() { //저장
+			if(!confirm("저장 하시겠습니까?")) {
+				return;
+			}
+			
+			var json = {};
+			var datetime = $("#datetime").val();
+			obj[datetime] = []; //날짜 입력									
+			
+			for(var i=0; i<$("[name=item]").length; i++) {				
+				var item = $("[name=item]").eq(i).val();
+				var name = $("[name=name]").eq(i).val();
+				var cost = $("[name=cost]").eq(i).val();
+				var arr = [item, name, cost];				
+				obj[datetime].push(arr);
+			}
+						
+			// json 파일 저장			
+			var jsonStr = JSON.stringify(obj, null, 2);									
+			
+			var blob = new Blob([jsonStr], { type: 'application/json' });
+			var url = URL.createObjectURL(blob);
+			var a = document.createElement('a');
+			a.href = url;
+			a.download = "text.json";
+			a.click();
+			
+			URL.revokeObjectURL(url);
+		}
+		
+		function fn_day() { //오늘 날짜
+			var today = new Date();
+			var year = today.getFullYear();
+			var month = ('0'+(today.getMonth() + 1)).slice(-2);
+			var day = ('0'+today.getDate()).slice(-2);
+			var dateStr = year + month + day;
+			return dateStr
+		}				
+	</script>
 </head>
+
 <body>
-	<div id="main">
-		<div id="list">
-			<div id="y60"></div>
-			<div id="y70"></div>
-			<div id="y80"></div>
-			<div id="y90"></div>
-			<div id="etc1"></div>
-			<div id="etc2"></div>
+<!-- S. file -->
+	<div id='file'>
+		<div>
+			<h4>파일 선택</h4>
+			<div id="read">
+				<input type="file" id="fileInput" accept=".json">
+			</div>
 		</div>
-		<div id="btn">
-			<div id="btn1">초기화</div>
-			<div id="btn2">조회</div>
-			<div id="btn3">저장</div>
-			<div id="btn4">복사</div>
-		</div>
-		<div id="cnt">
-			<textarea id='txt'></textarea>
-		</div>  
 	</div>
-	<div id="stats"></div>
+<!-- E. file -->
+
+<!-- S. list -->
+	<div id='list'>
+		<div style='display:ruby;'>
+			<h4>목록</h4>		
+			<button onclick='fn_detail()'>추가</button>
+		</div>
+	</div>
+<!-- E. list -->
+
+<!-- S. detail -->
+	<div id='detail'>
+		<div>
+			<h4>날짜</h4>
+			<div><input type='text' name='datetime' id='datetime'></div>
+		</div>
+		
+		<div style="display:flex">
+			<div>
+				<h4>항목</h4>
+				<button onclick='fn_add()'>추가</button>
+				<div id='area_cost'></div>
+			</div>
+		</div>
+		
+		<div>
+			<h4>합계</h4>
+			<div id='area_sum'></div>	
+		</div>
+		
+		<div>
+			<button onclick="fn_save();">저장</button>
+			<button onclick="fn_list();">뒤로</button>
+		</div>		
+	</div>
+<!-- E. detail -->	
 </body>
 </html>

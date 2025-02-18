@@ -20,7 +20,7 @@
 		/*
 		  데이터 형식 : 날짜, {[항목:값, 이름:값, 금액:값],[항목:값, 이름:값, 금액:값]}
 		*/
-		var obj; // json 파일 내용
+		var obj = {}; // json 파일 내용
 		
 		$(document).ready(function() {									
 			document.getElementById("fileInput").addEventListener("change", function(event) { // 파일 읽기
@@ -166,7 +166,7 @@
 			}
 			
 			var json = {};
-			var datetime = $("#datetime").val();
+			var datetime = $("#datetime").val();			
 			obj[datetime] = []; //날짜 입력									
 			
 			for(var i=0; i<$("[name=item]").length; i++) {				

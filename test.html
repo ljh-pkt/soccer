@@ -6,15 +6,13 @@
     <title>test</title>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<style>
-		body > div {margin: 20px;}
-		
-		#list > div {display: flex;}
-		#list > div > div {margin: 5px; cursor: pointer;}
+		body > div {margin: 20px;}		
 		
 		#detail {display: none;}
 		#detail > div {margin: 20px;}
 		
-		h4 {margin-bottom: 5px;}
+		.title {font-weight: bold; margin-bottom: 5px;}		
+		.item-name {background: gray; color: white;}
 	</style>
 	<script>
 		/*
@@ -32,15 +30,35 @@
 					reader.onload = function(e) {
 						
 						/* list */
-						$("#list > div").after().not(':first').remove(); // 목록 초기화
-						var html = "";
+						$("#list > table").remove(); // 목록 초기화
+												
 						var result = e.target.result; // 파일 내용 출력
 						obj = JSON.parse(result);
 						var keys = Object.keys(obj);
+						var html = "<table>";
+						html += "<tr><td class='item-name'>날짜</td><td></td></tr>";
 						$.each(keys, function(index, value) {
-							var date = value;
-							html += "<div><div onclick='fn_detail("+date+");'>"+date+"</div><button onclick='fn_delList("+date+");'>삭제</button></div>";
+							var date = value; // 날짜
+							/* 합계
+							var entries = obj[date];
+							var arr = [];
+							var sum = {};
+							for(var i=0; i<entries.length; i++) {
+								var entry = entries[i];
+								var item = entry[0]; 
+								var name = entry[1]; 
+								var cost = entry[2];
+								if(arr.includes(item)) {
+									sum[item] += parseInt(cost);
+								} else {
+									sum[item] = parseInt(cost);
+								}
+							}*/
+							
+							html += "<tr>";
+							html += "<td onclick='fn_detail("+date+");'>"+date+"</td><td><button onclick='fn_delList("+date+");'>삭제</button></td>";		html += "</tr>";
 						})
+						html += "</table>";
 						$("#list").append(html);
 					};					
 					
@@ -73,7 +91,7 @@
 			$("#detail").show();
 			
 			//상세 초기화
-			$("#area_cost > div").remove();
+			$("#area_cost table tr:not(:first)").remove();
 			$("#area_sum > div").remove();
 			
 			if(date == "" || date == undefined) {			
@@ -99,17 +117,18 @@
 		}
 		
 		function fn_add() { // 추가
-			var arr = ['헌금', '감사헌금', '건축헌금', '십일조'];
-			var html = "";
-			html += "<div>";
-			html += "<select name='item'>";
+			var arr = ['헌금', '건축헌금', '감사헌금', '십일조'];
+			var html = "<tr>";			
+			html += "<td><select name='item'>";
 			arr.forEach(function(value) {
 				html += "<option value='"+value+"'>"+value+"</option>";
 			})			
-			html += "</select>";
-			html += "<input type='text' name='name'><input type='text' name='cost'>";
-			html += "<button onclick='fn_delDetail(this)'>삭제</button></div>";			
-			$("#area_cost").append(html);
+			html += "</select></td>";
+			html += "<td><input type='text' name='name'></td>";
+			html += "<td><input type='text' name='cost'></td>";
+			html += "<td><button onclick='fn_delDetail(this)'>삭제</button></td>";			
+			html += "</tr>";
+			$("#area_cost > table").append(html);
 		}
 		
 		function fn_delList(date) { // 리스트 삭제
@@ -133,7 +152,7 @@
 		}
 		
 		function fn_delDetail(btn) { // 상세 삭제
-			btn.parentElement.remove();
+			btn.parentElement.parentElement.remove();
 			fn_sum();
 		}
 		
@@ -209,7 +228,7 @@
 <!-- S. file -->
 	<div id='file'>
 		<div>
-			<h4>파일 선택</h4>
+			<div class="title">파일 선택</div>
 			<div id="read">
 				<input type="file" id="fileInput" accept=".json">
 			</div>
@@ -219,8 +238,8 @@
 
 <!-- S. list -->
 	<div id='list'>
-		<div style='display:ruby;'>
-			<h4>목록</h4>		
+		<div style='display:ruby'>
+			<div class="title">목록</div>
 			<button onclick='fn_detail()'>추가</button>
 		</div>
 	</div>
@@ -229,20 +248,20 @@
 <!-- S. detail -->
 	<div id='detail'>
 		<div>
-			<h4>날짜</h4>
+			<div class="title">날짜</div>
 			<div><input type='text' name='datetime' id='datetime'></div>
 		</div>
 		
-		<div style="display:flex">
-			<div>
-				<h4>항목</h4>
-				<button onclick='fn_add()'>추가</button>
-				<div id='area_cost'></div>
+		<div>
+			<div style='display:ruby'>
+				<div class="title" >자료</div>
+				<button onclick='fn_add()'>추가</button>				
 			</div>
+			<div id='area_cost'><table><tr><td class='item-name'>항목</td><td class='item-name'>이름</td><td class='item-name'>금액</td></table></div>
 		</div>
 		
 		<div>
-			<h4>합계</h4>
+			<div class="title">합계</div>
 			<div id='area_sum'></div>	
 		</div>
 		

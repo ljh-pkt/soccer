@@ -117,7 +117,7 @@
 		}
 		
 		function fn_add() { // 추가
-			var arr = ['헌금', '건축헌금', '감사헌금', '십일조'];
+			var arr = ['aa', 'bb', 'cc', 'dd'];
 			var html = "<tr>";			
 			html += "<td><select name='item'>";
 			arr.forEach(function(value) {
@@ -220,14 +220,21 @@
 			var minutes = today.getMinutes();
 			var dateStr = year + month + day + hour + minutes;
 			return dateStr
-		}				
+		}
+		
+		function fn_reset() { // 초기화
+			$("#file").show();
+			$("#list > table").remove(); // 목록 초기화
+			$("#list").show();
+			$("#detail").hide();
+		}
 	</script>
 </head>
 
 <body>
 <!-- S. file -->
 	<div id='file'>
-		<div>
+		<div style='display:ruby';>
 			<div class="title">파일 선택</div>
 			<div id="read">
 				<input type="file" id="fileInput" accept=".json">

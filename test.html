@@ -9,17 +9,17 @@
 	<style>
 		body > div {margin:20px;}		
 		
-		#file {background:rgb(103 201 245 / 61%); padding:20px;}
+		#file {background:rgb(103 201 245 / 28%); padding:20px;}
 		
-		#list {background:rgb(103 201 245 / 61%); padding:20px;}
+		#list {background:rgb(103 201 245 / 28%); padding:20px;}
 		
-		#detail {display:none; background:rgb(103 201 245 / 61%); padding:20px;}
+		#detail {display:none; background:rgb(103 201 245 / 28%); padding:20px;}
 		#detail > div {margin:20px;}
 		
 		.data {background:white; padding:20px;}
 		
 		.title {font-weight:bold; margin-bottom:5px;}		
-		.item-name {background:gray; color:white;}
+		.item-name {background:gray; color:white; text-align:center;}
 		
 		#set {position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:80vw; height:80vh; z-index:10; background:white; padding:30px;}		
 	</style>
@@ -66,7 +66,7 @@
 								}*/
 								
 								html += "<tr>";
-								html += "<td onclick='fn_detail("+date+");'>"+date+"</td><td><button onclick='fn_detail("+date+");'>상세</button><button onclick='fn_delList("+date+");'>삭제</button></td>";		html += "</tr>";
+								html += "<td onclick='fn_detail("+date+");'>"+date+"</td><td><button onclick='fn_detail("+date+");' style='margin:5px'>상세</button><button onclick='fn_delList("+date+");'>삭제</button></td>";		html += "</tr>";
 							}
 						})
 						html += "</table>";

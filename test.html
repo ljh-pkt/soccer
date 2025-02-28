@@ -5,94 +5,103 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">	
     <title>test</title>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
 	<style>
-		body > div {margin: 20px;}		
+		body > div {margin:20px;}		
 		
-		#detail {display: none;}
-		#detail > div {margin: 20px;}
+		#file {background:rgb(103 201 245 / 61%); padding:20px;}
 		
-		.title {font-weight: bold; margin-bottom: 5px;}		
-		.item-name {background: gray; color: white;}
+		#list {background:rgb(103 201 245 / 61%); padding:20px;}
+		
+		#detail {display:none; background:rgb(103 201 245 / 61%); padding:20px;}
+		#detail > div {margin:20px;}
+		
+		.data {background:white; padding:20px;}
+		
+		.title {font-weight:bold; margin-bottom:5px;}		
+		.item-name {background:gray; color:white;}
+		
+		#set {position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:80vw; height:80vh; z-index:10; background:white; padding:30px;}		
 	</style>
 	<script>
 		/*
 		  데이터 형식 : 날짜, {[항목:값, 이름:값, 금액:값],[항목:값, 이름:값, 금액:값]}
 		*/
-		var obj = {}; // json 파일 내용
+		var obj = {}; //json 파일 내용
 		
 		$(document).ready(function() {									
 			document.getElementById("fileInput").addEventListener("change", function(event) { // 파일 읽기
-				let file = event.target.files[0]; // 사용자가 선택한 파일 가져오기
+				let file = event.target.files[0]; //사용자가 선택한 파일 가져오기
 				
 				if (file) {
-					let reader = new FileReader(); // FileReader 객체 생성
+					let reader = new FileReader(); //FileReader 객체 생성
 					
 					reader.onload = function(e) {
 						
 						/* list */
-						$("#list > table").remove(); // 목록 초기화
+						$("#list > table").remove(); //목록 초기화
 												
-						var result = e.target.result; // 파일 내용 출력
+						var result = e.target.result; //파일 내용 출력						
 						obj = JSON.parse(result);
 						var keys = Object.keys(obj);
 						var html = "<table>";
 						html += "<tr><td class='item-name'>날짜</td><td></td></tr>";
 						$.each(keys, function(index, value) {
-							var date = value; // 날짜
-							/* 합계
-							var entries = obj[date];
-							var arr = [];
-							var sum = {};
-							for(var i=0; i<entries.length; i++) {
-								var entry = entries[i];
-								var item = entry[0]; 
-								var name = entry[1]; 
-								var cost = entry[2];
-								if(arr.includes(item)) {
-									sum[item] += parseInt(cost);
-								} else {
-									sum[item] = parseInt(cost);
-								}
-							}*/
-							
-							html += "<tr>";
-							html += "<td onclick='fn_detail("+date+");'>"+date+"</td><td><button onclick='fn_delList("+date+");'>삭제</button></td>";		html += "</tr>";
+							if(value != "set") {
+								var date = value; // 날짜
+								/* 합계
+								var entries = obj[date];
+								var arr = [];
+								var sum = {};
+								for(var i=0; i<entries.length; i++) {
+									var entry = entries[i];
+									var item = entry[0]; 
+									var name = entry[1]; 
+									var cost = entry[2];
+									if(arr.includes(item)) {
+										sum[item] += parseInt(cost);
+									} else {
+										sum[item] = parseInt(cost);
+									}
+								}*/
+								
+								html += "<tr>";
+								html += "<td onclick='fn_detail("+date+");'>"+date+"</td><td><button onclick='fn_detail("+date+");'>상세</button><button onclick='fn_delList("+date+");'>삭제</button></td>";		html += "</tr>";
+							}
 						})
 						html += "</table>";
 						$("#list").append(html);
 					};					
 					
-					reader.readAsText(file, "UTF-8"); // 파일을 UTF-8로 읽기
+					reader.readAsText(file, "UTF-8"); //파일을 UTF-8로 읽기
 				}				
 			})	
 
-			$(document).on('click', '.del', function() { // 삭제
+			$(document).on('click', '.del', function() { //삭제
 				var id = $(this).attr('id');				
 			})
 			
-			$(document).on('keyup', '[name=cost]', function() { // input박스에 값 입력시				
+			$(document).on('keyup', '#area_cost [name=cost]', function() { //input박스에 값 입력시				
 				fn_sum();
 			});
 			
-			$(document).on('change', '[name=item]', function() { // select 값 변경시			
+			$(document).on('change', '#area_cost [name=item]', function() { //select 값 변경시			
 				fn_sum();
 			});
 		})
 		
-		function fn_list() { // 목록
+		function fn_list() { //목록
 			$("#detail").hide();
 			$("#file").show();
 			$("#list").show();			
 		}
 		
-		function fn_detail(date){ // 상세			
+		function fn_detail(date){ //상세			
 			$("#file").hide();
 			$("#list").hide();
 			$("#detail").show();
 			
-			//상세 초기화
-			$("#area_cost table tr:not(:first)").remove();
-			$("#area_sum > div").remove();
+			fn_resetDetail();
 			
 			if(date == "" || date == undefined) {			
 				date = fn_day().substring(0,8);
@@ -106,7 +115,7 @@
 					var name = entry[1];
 					var cost = entry[2];							
 					
-					fn_add();
+					fn_add('area_cost');
 					
 					$("[name=item]").eq(i).val(item);
 					$("[name=name]").eq(i).val(name);
@@ -116,8 +125,8 @@
 			}
 		}
 		
-		function fn_add() { // 추가
-			var arr = ['헌금', '감사헌금', '건축헌금', '십일조'];
+		function fn_add(id) { // 추가
+			var arr = ['aa', 'bb', 'cc', 'dd'];
 			var html = "<tr>";			
 			html += "<td><select name='item'>";
 			arr.forEach(function(value) {
@@ -128,10 +137,10 @@
 			html += "<td><input type='text' name='cost'></td>";
 			html += "<td><button onclick='fn_delDetail(this)'>삭제</button></td>";			
 			html += "</tr>";
-			$("#area_cost > table").append(html);
+			$("#"+id+" > table").append(html);
 		}
 		
-		function fn_delList(date) { // 리스트 삭제
+		function fn_delList(date) { //리스트 삭제
 			if(!confirm("삭제 하시겠습니까?")) {
 				return;
 			}
@@ -149,24 +158,26 @@
 			a.click();
 			
 			URL.revokeObjectURL(url);
+			
+			fn_reset();
 		}
 		
-		function fn_delDetail(btn) { // 상세 삭제
+		function fn_delDetail(btn) { //상세 삭제
 			btn.parentElement.parentElement.remove();
 			fn_sum();
 		}
 		
-		function fn_sum() { // 합계			
-			var sum = {}; // item, cost
+		function fn_sum() { //합계			
+			var sum = {}; //item, cost
 			
-			$("[name=item]").each(function(idx) { // 합계
+			$("[name=item]").each(function(idx) { //합계
 				var item = $(this).val();
 				var name = $("[name=name]").eq(idx).val();
 				var cost = $("[name=cost]").eq(idx).val();
 				
-				if([item] in sum) { // 값을 가지고 있으면					
+				if([item] in sum) { //값을 가지고 있으면					
 					sum[item] += parseInt(cost);
-				} else { // 값이 없으면					
+				} else { //값이 없으면					
 					sum[item] = parseInt(cost);
 				}								
 			})
@@ -189,15 +200,15 @@
 			var datetime = $("#datetime").val();			
 			obj[datetime] = []; //날짜 입력									
 			
-			for(var i=0; i<$("[name=item]").length; i++) {				
-				var item = $("[name=item]").eq(i).val();
-				var name = $("[name=name]").eq(i).val();
-				var cost = $("[name=cost]").eq(i).val();
+			for(var i=0; i<$("#area_cost [name=item]").length; i++) {				
+				var item = $("#area_cost [name=item]").eq(i).val();
+				var name = $("#area_cost [name=name]").eq(i).val();
+				var cost = $("#area_cost [name=cost]").eq(i).val();
 				var arr = [item, name, cost];				
 				obj[datetime].push(arr);
 			}
 						
-			// json 파일 저장			
+			//json 파일 저장			
 			var jsonStr = JSON.stringify(obj, null, 2);									
 			
 			var blob = new Blob([jsonStr], { type: 'application/json' });
@@ -209,6 +220,8 @@
 			a.click();
 			
 			URL.revokeObjectURL(url);
+			
+			fn_reset();
 		}
 		
 		function fn_day() { //오늘 날짜
@@ -222,11 +235,124 @@
 			return dateStr
 		}
 		
-		function fn_reset() { // 초기화
+		function fn_reset() { //초기화
+			fn_resetDetail();
+			fn_resetList();
+			
 			$("#file").show();
-			$("#list > table").remove(); // 목록 초기화
+			$("#fileInput").val('');			
 			$("#list").show();
 			$("#detail").hide();
+			
+			$("body").css("background", "white");
+			$("#set").hide();
+		}
+		
+		function fn_resetList() {
+			$("#list > table").remove();
+		}
+		
+		function fn_resetDetail() {
+			$("#area_cost table tr:not(:first)").remove();
+			$("#area_sum > div").remove();
+		}
+		
+		function fn_imp() { //설정값 불러오기
+			fn_resetDetail();
+			
+			var entries = obj["set"];
+						
+			if(entries != undefined) {
+				for(var i=0; i<entries.length; i++) {
+					var entry = entries[i];
+					var item = entry[0];							
+					var name = entry[1];
+					var cost = entry[2];							
+					
+					fn_add("area_cost");
+					
+					$("#area_cost [name=item]").eq(i).val(item);
+					$("#area_cost [name=name]").eq(i).val(name);
+					$("#area_cost [name=cost]").eq(i).val(cost);														
+				}
+				fn_sum();
+			} else {
+				alert("설정값이 없습니다.");
+			}
+		}
+		
+		function fn_set() { //설정
+			$("body").css('background', 'rgb(22 21 21 / 61%)');			
+			$("#set").show();
+			
+			var entries = obj["set"];
+						
+			if(entries != undefined) {
+				for(var i=0; i<entries.length; i++) {
+					var entry = entries[i];
+					var item = entry[0];							
+					var name = entry[1];
+					var cost = entry[2];							
+					
+					fn_add("area_set");
+					
+					$("#area_set[name=item]").eq(i).val(item);
+					$("#area_set [name=name]").eq(i).val(name);
+					$("#area_set [name=cost]").eq(i).val(cost);														
+				}				
+			} 
+		}
+		
+		function fn_setSave() { //설정 저장
+			if(!confirm("설정 저장 하시겠습니까?")) {
+				return;
+			}
+			
+			var json = {};			
+			obj["set"] = []; //날짜 입력
+			
+			for(var i=0; i<$("#area_set [name=item]").length; i++) {				
+				var cost = $("#area_set [name=cost]").eq(i).val();
+				var name = $("#area_set [name=name]").eq(i).val();
+				var item = $("#area_set [name=item]").eq(i).val();
+				var arr = [item, name, cost];				
+				obj["set"].push(arr);
+			}
+						
+			//json 파일 저장			
+			var jsonStr = JSON.stringify(obj, null, 2);									
+			
+			var blob = new Blob([jsonStr], { type: 'application/json' });
+			var url = URL.createObjectURL(blob);
+			var a = document.createElement('a');
+			a.href = url;
+			var now = fn_day().substring(0,4) + "-" + fn_day().substring(4,6) + "-" + fn_day().substring(6,8) + "_" + fn_day().substring(8,10) + "_" + fn_day().substring(10,12);
+			a.download = ""+now+".json";
+			a.click();
+			
+			URL.revokeObjectURL(url);
+			
+			fn_reset();
+		}
+		
+		function fn_xlsDown() { //엑셀 다운로드			
+            const data = [
+                { 이름: "홍길동", 나이: 25, 직업: "학생" },
+                { 이름: "김철수", 나이: 30, 직업: "개발자" },
+                { 이름: "이영희", 나이: 28, 직업: "디자이너" }
+            ];
+
+            const ws = XLSX.utils.json_to_sheet(data); // 데이터를 시트로 변환
+            
+            const wb = XLSX.utils.book_new(); // 워크북 생성
+            XLSX.utils.book_append_sheet(wb, ws, "학생 목록");
+
+            XLSX.writeFile(wb, "test.xlsx"); // 엑셀 파일로 저장
+		}
+	
+		function fn_setClose() { //modal 닫기
+			$("#set").hide();
+			$("body").css("background", "white");
 		}
 	</script>
 </head>
@@ -254,20 +380,22 @@
 
 <!-- S. detail -->
 	<div id='detail'>
-		<div style='display:ruby'>
+		<div style='display:ruby';>
 			<div class="title">날짜</div>
 			<div><input type='text' name='datetime' id='datetime'></div>
 		</div>
 		
-		<div>
+		<div class="data">
 			<div style='display:ruby'>
 				<div class="title" >자료</div>
-				<button onclick='fn_add()'>추가</button>				
+				<button onclick='fn_add("area_cost")'>추가</button>
+				<button onclick='fn_imp()' style="margin-left:10px;">설정 불러오기</button>
+				<button onclick='fn_set()'>설정</button>
 			</div>
 			<div id='area_cost'><table><tr><td class='item-name'>항목</td><td class='item-name'>이름</td><td class='item-name'>금액</td></table></div>
 		</div>
 		
-		<div>
+		<div class="data">
 			<div class="title">합계</div>
 			<div id='area_sum'></div>	
 		</div>
@@ -277,6 +405,23 @@
 			<button onclick="fn_list();">뒤로</button>
 		</div>		
 	</div>
-<!-- E. detail -->	
+<!-- E. detail -->
+
+<!-- S. set -->	
+	<div style='display:none;' id="set" class="set">
+		<div>
+			<div style='display:ruby'>
+				<div class="title" >자료</div>
+				<button onclick='fn_add("area_set")'>추가</button>				
+				
+			</div>
+			<div id='area_set'><table><tr><td class='item-name'>항목</td><td class='item-name'>이름</td><td class='item-name'>금액</td></table></div>
+			<div>
+				<button onclick='fn_setSave()'>저장</button>
+				<button onclick="fn_setClose();">닫기</button>
+			</div>
+		</div>
+	</div>
+<!-- E. set -->		
 </body>
 </html>
